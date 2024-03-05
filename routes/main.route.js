@@ -1,9 +1,9 @@
 const express = require('express');
-const authRoute = require('./auth.route');
 const fileRoute = require('./file.route');
-
+const authController = require('../controllers/auth.controller');
 const router = express.Router();
-router.use('/auth', authRoute);
+
+router.use(authController.verifyToken);
 router.use('/file',fileRoute)
 
 module.exports = router;

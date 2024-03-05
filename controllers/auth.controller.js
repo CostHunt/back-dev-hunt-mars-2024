@@ -29,6 +29,8 @@ async function register(req, res) {
         username: true,
         email: true,
         image: true,
+        createdAt: true,
+        updateAt: true,
       },
     });
 
