@@ -24,9 +24,62 @@ async function createPost(req, res) {
 // Get all posts
 async function getPosts(req, res) {
   try {
-    const posts = await prisma.post.findMany();
-    res.json(posts);
-  } catch (error) {
+    const posts = await prisma.post.findMany({
+      include: {
+        account: {
+          select : {
+              username : true,
+              image_profile : true,
+          }
+        },
+
+        attachedfiles : {
+          select : {
+            url : true
+          }
+        },
+        
+      },
+
+      orderBy : {
+        date_publication: 'desc', 
+      }
+    });
+
+    const postsWithCounts = await Promise.all(
+      posts.map(async (post) => {
+        // Count comments
+        const commentsCount = await prisma.comment.count({
+          where: {
+            id_post: post.id,
+          },
+        });
+
+        // Count likedBy
+        const likedByCount = post.likedBy ? post.likedBy.length : 0;
+
+        return {
+          ...post,
+          commentsCount,
+          likedByCount,
+        };
+      })
+    );
+
+   
+    /*const commentsCount = await prisma.comment.count({
+      
+    });
+
+    const likesCount = post.likedBy ? post.likedBy.length : 0;*/
+
+    if (!posts) {
+      res.status(404).send('Post not found');
+      return;
+    }
+    res.json(postsWithCounts);
+  } 
+  catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
   }
@@ -36,16 +89,43 @@ async function getPosts(req, res) {
 async function getPostById(req, res) {
   try {
     const { id } = req.params;
+    console.log('Received ID:', id);
+
     const post = await prisma.post.findUnique({
       where: {
         id,
       },
+      include: {
+        account: {
+          select : {
+              username : true,
+              image_profile : true,
+          }
+        },
+
+        attachedfiles : {
+          select : {
+            url : true
+          }
+        },
+        
+      },
+
     });
+
+    const commentsCount = await prisma.comment.count({
+      where: {
+        id_post: id,
+      },
+    });
+
+    const likesCount = post.likedBy ? post.likedBy.length : 0;
     if (!post) {
       res.status(404).send('Post not found');
       return;
     }
-    res.json(post);
+
+    res.json({...post, commentsCount, likesCount});
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
