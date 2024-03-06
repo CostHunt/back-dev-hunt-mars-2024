@@ -70,6 +70,8 @@ CREATE TABLE "Post" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "id_groupe" UUID NOT NULL,
     "id_account" UUID NOT NULL,
+    "is_resolved" BOOLEAN NOT NULL DEFAULT false,
+    "likedById" UUID,
 
     CONSTRAINT "Post_pkey" PRIMARY KEY ("id")
 );
@@ -105,6 +107,7 @@ CREATE TABLE "Comment" (
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
     "id_post" UUID NOT NULL,
+    "id_account" UUID NOT NULL,
 
     CONSTRAINT "Comment_pkey" PRIMARY KEY ("id")
 );
@@ -129,6 +132,9 @@ CREATE UNIQUE INDEX "Account_matricule_key" ON "Account"("matricule");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Bus_ligne_key" ON "Bus"("ligne");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "Post_likedById_key" ON "Post"("likedById");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "Groupe_nom_groupe_key" ON "Groupe"("nom_groupe");
@@ -158,10 +164,16 @@ ALTER TABLE "Post" ADD CONSTRAINT "Post_id_groupe_fkey" FOREIGN KEY ("id_groupe"
 ALTER TABLE "Post" ADD CONSTRAINT "Post_id_account_fkey" FOREIGN KEY ("id_account") REFERENCES "Account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Post" ADD CONSTRAINT "Post_likedById_fkey" FOREIGN KEY ("likedById") REFERENCES "Account"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "Attachedfile" ADD CONSTRAINT "Attachedfile_id_post_fkey" FOREIGN KEY ("id_post") REFERENCES "Post"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Comment" ADD CONSTRAINT "Comment_id_post_fkey" FOREIGN KEY ("id_post") REFERENCES "Post"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "Comment" ADD CONSTRAINT "Comment_id_account_fkey" FOREIGN KEY ("id_account") REFERENCES "Account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_BusToQuartier" ADD CONSTRAINT "_BusToQuartier_A_fkey" FOREIGN KEY ("A") REFERENCES "Bus"("id") ON DELETE CASCADE ON UPDATE CASCADE;

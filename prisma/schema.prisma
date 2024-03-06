@@ -35,10 +35,11 @@ model Account {
   updatedAt DateTime @updatedAt
   id_quartier String @db.Uuid
   quartier Quartier @relation(fields: [id_quartier],references: [id])
-  posts Post[]
+  writtenPosts Post[]  @relation("WrittenPosts")
+  likedPost   Post?   @relation("LikedPost")
   projects Project[]
   messages Message[]
-  
+  comments Comment[]
 }
 model Project {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
@@ -75,13 +76,16 @@ model Post {
   description   String  @db.VarChar(250)
   date_publication DateTime?  @default(now()) @db.Timestamp
   groupe  Groupe  @relation(fields: [id_groupe], references: [id])
-  account Account @relation(fields: [id_account], references: [id])
+  account Account @relation("WrittenPosts",fields: [id_account], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   id_groupe String @db.Uuid
   id_account String @db.Uuid
+  is_resolved Boolean @default(false)
   attachedfiles Attachedfile[]
   comments Comment[]
+  likedBy   Account?   @relation("LikedPost", fields: [likedById], references: [id])
+  likedById String?    @db.Uuid @unique
 }
 
 model Groupe {
@@ -112,5 +116,7 @@ model Comment {
   updatedAt DateTime @updatedAt
   post Post @relation(fields: [id_post], references: [id])
   id_post String @db.Uuid
+  id_account String @db.Uuid
+  account Account @relation(fields: [id_account], references: [id])
 }
 
