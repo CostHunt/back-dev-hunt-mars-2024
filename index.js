@@ -12,7 +12,7 @@ const io = require("socket.io")(server, {
 
 app.use(express.json());
 app.use('/api', mainRoute);
-app.use('/api/auth', authRoute);
+app.use('/auth', authRoute);
 
 
 io.on('connection', (socket) => {

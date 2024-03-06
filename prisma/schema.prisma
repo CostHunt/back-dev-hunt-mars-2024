@@ -13,13 +13,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 // prisma/schema.prisma
+model Quartier {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nom_quartier String @db.VarChar(30) @unique
+  accounts  Account[]
+}
 
-model User {
+model Account {
   id        String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   username  String   @db.VarChar(30) @unique
   email     String   @db.VarChar(30) @unique
+  nom       String   @db.VarChar(30)
+  prenoms   String    @db.VarChar(30)
+  matricule String    @db.VarChar(30) @unique
   password   String?      @db.VarChar(250) @map("_password")
-  image      String  @db.VarChar(30)
+  image_profile      String  @db.VarChar(30)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  id_quartier String
+  quartier Quartier @relation(fields: [id_quartier],references: [id])
 }

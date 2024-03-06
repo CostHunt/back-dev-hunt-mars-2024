@@ -11,8 +11,7 @@ async function register(req, res) {
   const hashedPassword = await bcrypt.hash(password, 10);
 
   try {
-    // Create the user with the hashed password
-    const user = await prisma.account.create({
+    const user = await prisma.Account.create({
       data: {
         username,
         password: hashedPassword,
@@ -22,7 +21,7 @@ async function register(req, res) {
     });
     // Fetch the complete user data (excluding password)
    
-    const completeUserData = await prisma.account.findUnique({
+    const completeUserData = await prisma.Account.findUnique({
       where: { username },
       select: {
         id:true,
@@ -30,7 +29,7 @@ async function register(req, res) {
         email: true,
         image: true,
         createdAt: true,
-        updateAt: true,
+        updatedAt: true,
       },
     });
 
@@ -54,7 +53,7 @@ async function login(req, res) {
   const { username, password } = req.body;
 
   try {
-    const user = await prisma.account.findUnique({
+    const user = await prisma.Account.findUnique({
       where: { username },
     });
 
@@ -99,7 +98,7 @@ async function verifyToken(req, res, next) {
   try {
     const decoded = jwt.verify(token, secretKey);
 
-    const user = await prisma.account.findUnique({
+    const user = await prisma.Account.findUnique({
       where: { username: decoded.id },
     });
 
