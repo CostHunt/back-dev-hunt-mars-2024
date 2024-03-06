@@ -5,7 +5,7 @@ const quartierController = require('../controllers/quartier.controller');
 const router = express.Router();
 
 const authController = require('../controllers/auth.controller');
-router.use(authController.verifyToken);
+// router.use(authController.verifyToken);
 router.post('/', quartierController.createQuartier);
 router.get('/', quartierController.getAllQuartiers);
 
