@@ -7,47 +7,44 @@ const prisma = new PrismaClient();
 const secretKey = '$cost-hunt03-24';
 
 async function register(req, res) {
-  const { username, password, email, image } = req.body;
-  const hashedPassword = await bcrypt.hash(password, 10);
-
   try {
-    const user = await prisma.Account.create({
+    const {
+      username,
+      email,
+      nom,
+      prenoms,
+      matricule,
+      password,
+      image_profile,
+      id_quartier,
+    } = req.body;
+
+    // Hash the password before saving it
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create a new account using Prisma
+    const newAccount = await prisma.account.create({
       data: {
         username,
-        password: hashedPassword,
         email,
-        image,
-      },
-    });
-    // Fetch the complete user data (excluding password)
-   
-    const completeUserData = await prisma.Account.findUnique({
-      where: { username },
-      select: {
-        id:true,
-        username: true,
-        email: true,
-        image: true,
-        createdAt: true,
-        updatedAt: true,
+        nom,
+        prenoms,
+        matricule,
+        password: hashedPassword,
+        image_profile,
+        id_quartier,
       },
     });
 
-    const token = jwt.sign(
-      {
-        userId: user.id,
-      },
-      secretKey,
-      { expiresIn: '1h' }
-    );
-
-    res.json({ message: 'User registered successfully', user: completeUserData, token });
+    // Remove the password field from the response for security reasons
+    const { password: _, ...accountWithoutPassword } = newAccount;
+    const token = jwt.sign({ accountId: newAccount.username }, secretKey, { expiresIn: '1h' });
+    res.json({token,account: accountWithoutPassword});
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Registration failed' });
+    res.status(500).json({ error: 'Internal Server Error' });
   }
-}
-
+};
 
 async function login(req, res) {
   const { username, password } = req.body;
