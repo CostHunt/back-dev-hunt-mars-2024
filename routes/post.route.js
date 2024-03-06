@@ -6,8 +6,8 @@ const router = express.Router();
 
 // Define routes for CRUD operations on posts
 router.use(authController.verifyToken);
-router.post('/', postController.createPost);
-router.get('/', postController.getPosts);
+crouter.post('/', postController.createPost);
+crouter.get('/', postController.getPosts);
 router.get('/:id', postController.getPostById);
 router.put('/:id', postController.updatePost);
 router.delete('/:id', postController.deletePost);
