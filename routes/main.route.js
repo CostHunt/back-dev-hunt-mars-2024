@@ -14,5 +14,5 @@ router.use('/project',projectRoute);
 router.use('/post',postRoute);
 router.use('/groupe/',groupeRoute);
 
-router.use('/project',compileRoute,)
+router.use('/run',compileRoute,)
 module.exports = router;

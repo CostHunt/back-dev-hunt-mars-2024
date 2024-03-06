@@ -2,13 +2,12 @@
 const express = require('express');
 const mainRoute = require('./routes/main.route');
 const app = express();
-const { PrismaClient } = require('@prisma/client');
-const prisma = new PrismaClient();
+const cors = require('cors');
 const server = require("http").createServer(app);
 const io = require("socket.io")(server, {
     cors: {origin: "*"}
 });
-const cors = require('cors');
+
 app.use(express.json());
 app.use(cors());
 app.use('/api', mainRoute);
@@ -16,13 +15,22 @@ app.use('/api', mainRoute);
 io.on('connection', (socket) => {
   console.log("connected")
 
-  socket.on("message", message=>{
+  socket.on("message1", message=>{
     try{
-        console.log(message);
-        io.emit("new_message", message)
+        console.log("msg1");
+        io.emit("new_message1", message)
       }
       catch{
-      io.emit("error", {error: "message non envoyé"})
+      io.emit("error", {error: "message1 non envoyé"})
+    }
+  })
+  socket.on("message2", message=>{
+    try{
+        console.log("msg2");
+        io.emit("new_message2", message)
+      }
+      catch{
+      io.emit("error", {error: "message2 non envoyé"})
     }
   })
 });
