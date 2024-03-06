@@ -17,6 +17,9 @@ model Quartier {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   nom_quartier String @db.VarChar(30) @unique
   accounts  Account[]
+  bus Bus[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }
 
 model Account {
@@ -32,4 +35,26 @@ model Account {
   updatedAt DateTime @updatedAt
   id_quartier String
   quartier Quartier @relation(fields: [id_quartier],references: [id])
+  projects Project[]
+  
 }
+
+model Project {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nom_project String @db.VarChar(30)
+  categorie String
+  code String @db.Text
+  id_user String
+  account Account @relation(fields: [id_user],references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Bus {
+  id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  ligne String @db.VarChar @unique
+  quartier Quartier[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
