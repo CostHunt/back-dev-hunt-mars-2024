@@ -23,7 +23,6 @@ async function runCode (req, res){
         
         axios(config)
           .then(function (response) {
-            console.log(JSON.stringify(response.data));
             res.json({res:response.data})
           })
           .catch(function (error) {

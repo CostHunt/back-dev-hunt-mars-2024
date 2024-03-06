@@ -8,11 +8,11 @@ const server = require("http").createServer(app);
 const io = require("socket.io")(server, {
     cors: {origin: "*"}
 });
-
+const cors = require('cors');
 app.use(express.json());
 app.use('/api', mainRoute);
 
-
+app.use(cors());
 io.on('connection', (socket) => {
   console.log("connected")
 
