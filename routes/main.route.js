@@ -8,6 +8,7 @@ const groupeRoute = require('../routes/groupe.route');
 const commentRoute = require('../routes/comment.route');
 const router = express.Router();
 const authRoute = require('./auth.route');
+
 router.use('/auth', authRoute);
 router.use('/file',fileRoute);
 router.use('/quartier',quartierRoute);

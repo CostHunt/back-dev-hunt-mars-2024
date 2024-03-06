@@ -125,6 +125,28 @@ async function likePost(req, res) {
   }
 }
 
+// Get group posts
+async function getGroupPost(req, res) {
+  try {
+    const { id_groupe } = req.params;
+    const post = await prisma.post.findMany({
+      where: {
+        id_groupe,
+      },
+    });
+    if (!post) {
+      res.status(404).send('No Group Posts');
+      return;
+    }
+    res.json(post);
+  } catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+}
+
+
+
 
 module.exports = {
     createPost,
@@ -132,5 +154,6 @@ module.exports = {
     getPostById,
     updatePost,
     deletePost,
-    likePost
+    likePost,
+    getGroupPost
   };

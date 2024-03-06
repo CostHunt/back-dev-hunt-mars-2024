@@ -4,11 +4,11 @@ const prisma = new PrismaClient();
 
 async function createGroupe(req, res) {
   try {
-    const { image_groupe, nom_groupe } = req.body;
+    const { nom_groupe, image_groupe } = req.body;
     const groupe = await prisma.groupe.create({
       data: {
+        nom_groupe,
         image_groupe,
-        nom_groupe
       },
     });
     res.json(groupe);
@@ -18,7 +18,6 @@ async function createGroupe(req, res) {
   }
 }
 
-// Get all posts
 async function getGroupes(req, res) {
   try {
     const groupes = await prisma.groupe.findMany();
@@ -35,13 +34,9 @@ async function getGroupeById(req, res) {
     const { id } = req.params;
     const groupe = await prisma.groupe.findUnique({
       where: {
-        id,
+        id: parseInt(id),
       },
     });
-    if (!groupe) {
-      res.status(404).send('Groupe not found');
-      return;
-    }
     res.json(groupe);
   } catch (error) {
     console.error(error);
@@ -49,17 +44,15 @@ async function getGroupeById(req, res) {
   }
 }
 
-// Update a post by its ID
 async function updateGroupe(req, res) {
   try {
     const { id } = req.params;
-    const { image_groupe, nom_groupe } = req.body;
+    const { nom_groupe, image_groupe } = req.body;
     const updatedGroupe = await prisma.groupe.update({
       where: {
-        id,
+        id: parseInt(id),
       },
       data: {
-        description,
         nom_groupe,
         image_groupe,
       },
@@ -87,10 +80,6 @@ async function deleteGroupe(req, res) {
   }
 }
 
-module.exports = {
-    createGroupe,
-    getGroupeById,
-    getGroupes,
-    updateGroupe,
-    deleteGroupe
-  };
+
+module.exports = { createGroupe, getGroupes, getGroupeById, updateGroupe, deleteGroupe };
+
