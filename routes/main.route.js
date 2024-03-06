@@ -7,6 +7,7 @@ const compileRoute = require('../routes/compile.route');
 const groupeRoute = require('../routes/groupe.route');
 const attachedfileRoute = require('../routes/attachedfile.route');
 const commentRoute = require('../routes/comment.route');
+const accountRoute = require('../routes/account.route');
 const router = express.Router();
 const authRoute = require('./auth.route');
 
@@ -18,7 +19,8 @@ router.use('/post',postRoute);
 router.use('/groupe',groupeRoute);
 router.use('/attachedfile',attachedfileRoute);
 router.use('/comment',attachedfileRoute);
-router.use('/project',compileRoute,)
+router.use('/project',compileRoute,);
+router.use('/account',accountRoute,);
 
 
 router.use('/run',compileRoute,)
