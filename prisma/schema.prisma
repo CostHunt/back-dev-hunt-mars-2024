@@ -35,17 +35,18 @@ model Account {
   updatedAt DateTime @updatedAt
   id_quartier String
   quartier Quartier @relation(fields: [id_quartier],references: [id])
+  posts Post[]
   projects Project[]
+  messages Message[]
   
 }
-
 model Project {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   nom_project String @db.VarChar(30)
   categorie String
   code String @db.Text
-  id_user String
-  account Account @relation(fields: [id_user],references: [id])
+  id_account String
+  accounts Account @relation(fields: [id_account],references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
@@ -54,7 +55,62 @@ model Bus {
   id String @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
   ligne String @db.VarChar @unique
   quartier Quartier[]
+  date_envoye DateTime @default(now())
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+}
+model Message{
+  id String  @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  contenu String @db.Text
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  id_account String
+  id_groupe String
+  account Account @relation(fields: [id_account], references: [id])
+  groupe  Groupe @relation(fields: [id_groupe], references: [id])
+}
+
+model Post {
+  id        String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  description   String  @db.VarChar(250)
+  date_publication DateTime?  @default(now()) @db.Timestamp
+  groupe  Groupe  @relation(fields: [id_groupe], references: [id])
+  account Account @relation(fields: [id_account], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  id_groupe String
+  id_account String
+  attachedfiles Attachedfile[]
+  comments Comment[]
+}
+
+model Groupe {
+  id        String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nom_groupe String      @db.VarChar(30) @unique
+  image_groupe String    @db.VarChar(30)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  posts Post[] 
+  messages Message[]
+}
+model Attachedfile {
+  id        String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nom_fichier  String   @db.VarChar(30)
+  url       String      @db.VarChar(100)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  post  Post  @relation(fields: [id_post], references: [id])
+  id_post String
+
+}
+
+model Comment {
+  id        String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  contenu   String      @db.VarChar(100)
+  date_commentaire DateTime?  @default(now()) @db.Timestamp
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  post Post @relation(fields: [id_post], references: [id])
+  id_post String
 }
 
