@@ -1,89 +1,56 @@
+// controllers/comment.controller.js
 const { PrismaClient } = require('@prisma/client');
-
 const prisma = new PrismaClient();
 
-async function createComment(req, res) {
-  try {
-    const { contenu, id_post } = req.body;
-    const comment = await prisma.comment.create({
-      data: {
-        contenu,
-        post: {
-          connect: {
-            id: id_post,
-          },
+
+async function  getAllComments (req, res){
+    try {
+      const comments = await prisma.comment.findMany();
+      res.json(comments);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
+  }
+
+  async function getCommentByPost(req, res) {
+    const { id_post } = req.params;
+    try {
+      const comments = await prisma.comment.findMany({
+        where: { id_post: id_post },
+        include: {
+          account: true, // Inclure les détails de l'utilisateur associé au commentaire
         },
-      },
-    });
-    res.json(comment);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Internal Server Error');
+      });
+  
+      if (!comments || comments.length === 0) {
+        res.status(200).json({ message: 'No comments' });
+        return;
+      }
+  
+      // La variable 'comments' contient maintenant les informations de l'utilisateur pour chaque commentaire
+      res.json(comments);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
-}
+  
 
-async function getComments(req, res) {
-  try {
-    const comments = await prisma.comment.findMany();
-    res.json(comments);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Internal Server Error');
-  }
-}
-
-async function getCommentById(req, res) {
-  try {
-    const { id } = req.params;
-    const comment = await prisma.comment.findUnique({
-      where: {
-        id: parseInt(id),
-      },
-    });
-    res.json(comment);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Internal Server Error');
-  }
-}
-
-async function updateComment(req, res) {
-  try {
-    const { id } = req.params;
-    const { contenu, id_post } = req.body;
-    const updatedComment = await prisma.comment.update({
-      where: {
-        id: parseInt(id),
-      },
-      data: {
-        contenu,
-        post: {
-          connect: {
-            id: id_post,
-          },
+async function  createComment(req, res) {
+    const { contenu, id_post, id_account } = req.body;
+    try {
+      const newComment = await prisma.comment.create({
+        data: {
+          contenu,
+          id_post,
+          id_account,
         },
-      },
-    });
-    res.json(updatedComment);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Internal Server Error');
+      });
+      res.status(201).json(newComment);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: 'Internal server error' });
+    }
   }
-}
-
-async function deleteComment(req, res) {
-  try {
-    const { id } = req.params;
-    const deletedComment = await prisma.comment.delete({
-      where: {
-        id: parseInt(id),
-      },
-    });
-    res.json(deletedComment);
-  } catch (error) {
-    console.error(error);
-    res.status(500).send('Internal Server Error');
-  }
-}
-
-module.exports = { createComment, getComments, getCommentById, updateComment, deleteComment };
+module.exports = {createComment, getAllComments,getCommentByPost};
