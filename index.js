@@ -10,9 +10,9 @@ const io = require("socket.io")(server, {
 });
 const cors = require('cors');
 app.use(express.json());
+app.use(cors());
 app.use('/api', mainRoute);
 
-app.use(cors());
 io.on('connection', (socket) => {
   console.log("connected")
 
