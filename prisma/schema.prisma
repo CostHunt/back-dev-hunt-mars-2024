@@ -33,3 +33,45 @@ model Account {
   id_quartier String
   quartier Quartier @relation(fields: [id_quartier],references: [id])
 }
+
+model Post {
+  id        String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  description   String  @db.VarChar(250)
+  date_publication DateTime?  @default(now()) @db.Timestamp
+  groupe  Group  @relation(fields: [id_groupe], references: [id])
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  id_groupe String
+  attachedfiles Attachedfile[]
+  comment Comment[]
+}
+
+model Group {
+  id        String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nom_group String      @db.VarChar(30) @unique
+  image_group String    @db.VarChar(30)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  posts Post[] 
+  
+}
+model Attachedfile {
+  id        String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  nom_fichier  String   @db.VarChar(30)
+  url       String      @db.VarChar(100)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  post  Post  @relation(fields: [id_post], references: [id])
+  id_post String
+
+}
+
+model Comment {
+  id        String      @id @default(dbgenerated("gen_random_uuid()")) @db.Uuid
+  contenu   String      @db.VarChar(100)
+  date_commentaire DateTime?  @default(now()) @db.Timestamp
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  post Post @relation(fields: [id_post], references: [id])
+  id_post String
+}
