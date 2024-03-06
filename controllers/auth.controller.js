@@ -4,7 +4,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
 const prisma = new PrismaClient();
-const secretKey = 'yourSecretKey'; // Change this to a secure secret key
+const secretKey = '$cost-hunt03-24';
 
 async function register(req, res) {
   const { username, password, email, image } = req.body;
