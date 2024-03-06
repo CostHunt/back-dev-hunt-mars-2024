@@ -2,6 +2,7 @@
 const express = require('express');
 const mainRoute = require('./routes/main.route');
 const authRoute = require('./routes/auth.route');
+const postRoute = require('./routes/post.route');
 const app = express();
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
@@ -13,6 +14,7 @@ const io = require("socket.io")(server, {
 app.use(express.json());
 app.use('/api', mainRoute);
 app.use('/auth', authRoute);
+app.use('/post', authRoute);
 
 
 io.on('connection', (socket) => {
