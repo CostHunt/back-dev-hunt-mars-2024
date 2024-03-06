@@ -108,7 +108,15 @@ async function likePost(req, res) {
     });
 
     if (existingLike?.likedBy.length > 0) {
-      return res.status(400).json({ error: 'Post already liked by this account' });
+      const unlikedPost = await prisma.post.update({
+        where: { id: post_id },
+        data: { likedBy: { disconnect: { id: user_id } } },
+        include: { likedBy: true },
+      });
+
+      // Retournez le nombre de likes après la suppression du like
+      res.json({ message: 'Post unliked successfully', numberOfLikes: unlikedPost.likedBy.length });
+      return;
     }
 
     // Ajoutez le like du post
@@ -118,12 +126,14 @@ async function likePost(req, res) {
       include: { likedBy: true },
     });
 
-    res.json({ message: 'Post liked successfully', likedPost });
+    // Retournez le nombre de likes après l'ajout du like
+    res.json({ message: 'Post liked successfully', numberOfLikes: likedPost.likedBy.length });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
 }
+
 
 // Get group posts
 async function getGroupPost(req, res) {
