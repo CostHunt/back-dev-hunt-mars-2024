@@ -1,22 +1,21 @@
 // controllers/authController.js
 const { PrismaClient } = require('@prisma/client');
 const bcrypt = require('bcrypt');
-const jwt = require('jsonwebtoken');
-
 const prisma = new PrismaClient();
 const secretKey = '$cost-hunt03-24';
+const jwt = require('jsonwebtoken');
 
 async function register(req, res) {
   try {
     const {
       username,
       email,
-      nom,
-      prenoms,
-      matricule,
+      lastName,
+      firstName,
+      employeeId,
       password,
-      image_profile,
-      id_quartier,
+      profileImage,
+      neighborhoodId,
     } = req.body;
 
     // Hash the password before saving it
@@ -27,30 +26,30 @@ async function register(req, res) {
       data: {
         username,
         email,
-        nom,
-        prenoms,
-        matricule,
+        lastName,
+        firstName,
+        employeeId,
         password: hashedPassword,
-        image_profile,
-        id_quartier,
+        profileImage,
+        neighborhoodId,
       },
     });
 
     // Remove the password field from the response for security reasons
     const { password: _, ...accountWithoutPassword } = newAccount;
-    const token = jwt.sign({ accountId: newAccount.username }, secretKey, { expiresIn: '1h' });
-    res.json({token,account: accountWithoutPassword});
+    const token = jwt.sign({ accountId: newAccount.id }, secretKey, { expiresIn: '1h' });
+    res.json({ token, account: accountWithoutPassword });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal Server Error' });
   }
-};
+}
 
 async function login(req, res) {
   const { username, password } = req.body;
 
   try {
-    const account = await prisma.Account.findUnique({
+    const account = await prisma.account.findUnique({
       where: { username },
     });
 
@@ -80,11 +79,12 @@ async function refreshTokens(req, res) {
     if (err) {
       return res.status(401).json({ message: 'Invalid refresh token' });
     }
-    const newAccessToken = jwt.sign({ accountId: decoded.username }, secretKey, { expiresIn: '1h' });
+    const newAccessToken = jwt.sign({ accountId: decoded.accountId }, secretKey, { expiresIn: '1h' });
 
     res.json({ message: 'Token refreshed successfully', token: newAccessToken });
   });
 }
+
 async function verifyToken(req, res, next) {
   const token = req.header('X-access-token');
 
@@ -95,15 +95,15 @@ async function verifyToken(req, res, next) {
   try {
     const decoded = jwt.verify(token, secretKey);
 
-    const user = await prisma.Account.findUnique({
-      where: { id: decoded.accountId }, // Use the ID directly instead of username
+    const user = await prisma.account.findUnique({
+      where: { id: decoded.accountId },
     });
 
     if (!user) {
       return res.status(403).json({ message: 'Not authorized, Account not found' });
     }
 
-    req.user = user; // Set the user directly in the request object
+    req.user = user;
     next();
   } catch (error) {
     console.error('Token verification error:', error.message);
