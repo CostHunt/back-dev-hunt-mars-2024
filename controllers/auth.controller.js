@@ -10,12 +10,12 @@ async function register(req, res) {
     const {
       username,
       email,
-      lastName,
-      firstName,
-      employeeId,
+      nom,
+      prenoms,
       password,
-      profileImage,
-      neighborhoodId,
+      image_profile,
+      matricule,
+      id_quartier,
     } = req.body;
 
     // Hash the password before saving it
@@ -26,12 +26,12 @@ async function register(req, res) {
       data: {
         username,
         email,
-        lastName,
-        firstName,
-        employeeId,
+        nom,
+        prenoms,
+        matricule,
         password: hashedPassword,
-        profileImage,
-        neighborhoodId,
+        image_profile,
+        id_quartier,
       },
     });
 

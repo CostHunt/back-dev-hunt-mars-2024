@@ -5,7 +5,7 @@ const compileController = require('../controllers/compilater.controller');
 const router = express.Router();
 
 const authController = require('../controllers/auth.controller');
-router.use(authController.verifyToken);
+// router.use(authController.verifyToken);
 router.post('/run/code/',compileController.runCode );
 
 module.exports = router;
