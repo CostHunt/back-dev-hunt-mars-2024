@@ -36,7 +36,7 @@ model Account {
   id_quartier String @db.Uuid
   quartier Quartier @relation(fields: [id_quartier],references: [id])
   writtenPosts Post[]  @relation("WrittenPosts")
-  likedPost   Post?   @relation("LikedPost")
+  likedPost   Post[]   @relation("LikedPost")
   projects Project[]
   messages Message[]
   comments Comment[]
@@ -84,8 +84,7 @@ model Post {
   is_resolved Boolean @default(false)
   attachedfiles Attachedfile[]
   comments Comment[]
-  likedBy   Account?   @relation("LikedPost", fields: [likedById], references: [id])
-  likedById String?    @db.Uuid @unique
+  likedBy   Account[]   @relation("LikedPost")
 }
 
 model Groupe {

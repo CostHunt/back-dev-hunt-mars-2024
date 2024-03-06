@@ -4,13 +4,13 @@ const prisma = new PrismaClient();
 
 async function runCode (req, res){
     try{
-        const {code} = req.body;
+        const {code, language, input} = req.body;
         var axios = require('axios');
         var qs = require('qs');
         var data = qs.stringify({
             code: code,
-            language: 'c',
-            input: '7'
+            language: language,
+            input: input
         });
         var config = {
             method: 'post',
@@ -23,14 +23,16 @@ async function runCode (req, res){
         
         axios(config)
           .then(function (response) {
-            console.log(JSON.stringify(response.data));
+            res.json({res:response.data})
           })
           .catch(function (error) {
             console.log(error);
+            res.json({error})
           });
     }catch(error) {
         console.error(error);
         res.status(500).json({ error: 'Internal Server Error' });
+        res.json({error})
       }
 }
 

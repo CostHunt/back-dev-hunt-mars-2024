@@ -71,7 +71,6 @@ CREATE TABLE "Post" (
     "id_groupe" UUID NOT NULL,
     "id_account" UUID NOT NULL,
     "is_resolved" BOOLEAN NOT NULL DEFAULT false,
-    "likedById" UUID,
 
     CONSTRAINT "Post_pkey" PRIMARY KEY ("id")
 );
@@ -113,6 +112,12 @@ CREATE TABLE "Comment" (
 );
 
 -- CreateTable
+CREATE TABLE "_LikedPost" (
+    "A" UUID NOT NULL,
+    "B" UUID NOT NULL
+);
+
+-- CreateTable
 CREATE TABLE "_BusToQuartier" (
     "A" UUID NOT NULL,
     "B" UUID NOT NULL
@@ -134,10 +139,13 @@ CREATE UNIQUE INDEX "Account_matricule_key" ON "Account"("matricule");
 CREATE UNIQUE INDEX "Bus_ligne_key" ON "Bus"("ligne");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Post_likedById_key" ON "Post"("likedById");
+CREATE UNIQUE INDEX "Groupe_nom_groupe_key" ON "Groupe"("nom_groupe");
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Groupe_nom_groupe_key" ON "Groupe"("nom_groupe");
+CREATE UNIQUE INDEX "_LikedPost_AB_unique" ON "_LikedPost"("A", "B");
+
+-- CreateIndex
+CREATE INDEX "_LikedPost_B_index" ON "_LikedPost"("B");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "_BusToQuartier_AB_unique" ON "_BusToQuartier"("A", "B");
@@ -164,9 +172,6 @@ ALTER TABLE "Post" ADD CONSTRAINT "Post_id_groupe_fkey" FOREIGN KEY ("id_groupe"
 ALTER TABLE "Post" ADD CONSTRAINT "Post_id_account_fkey" FOREIGN KEY ("id_account") REFERENCES "Account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Post" ADD CONSTRAINT "Post_likedById_fkey" FOREIGN KEY ("likedById") REFERENCES "Account"("id") ON DELETE SET NULL ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "Attachedfile" ADD CONSTRAINT "Attachedfile_id_post_fkey" FOREIGN KEY ("id_post") REFERENCES "Post"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -174,6 +179,12 @@ ALTER TABLE "Comment" ADD CONSTRAINT "Comment_id_post_fkey" FOREIGN KEY ("id_pos
 
 -- AddForeignKey
 ALTER TABLE "Comment" ADD CONSTRAINT "Comment_id_account_fkey" FOREIGN KEY ("id_account") REFERENCES "Account"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_LikedPost" ADD CONSTRAINT "_LikedPost_A_fkey" FOREIGN KEY ("A") REFERENCES "Account"("id") ON DELETE CASCADE ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "_LikedPost" ADD CONSTRAINT "_LikedPost_B_fkey" FOREIGN KEY ("B") REFERENCES "Post"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "_BusToQuartier" ADD CONSTRAINT "_BusToQuartier_A_fkey" FOREIGN KEY ("A") REFERENCES "Bus"("id") ON DELETE CASCADE ON UPDATE CASCADE;

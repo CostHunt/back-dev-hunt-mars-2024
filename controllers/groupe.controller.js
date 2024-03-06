@@ -28,6 +28,7 @@ async function getGroupes(req, res) {
   }
 }
 
+// Get a post by its ID
 async function getGroupeById(req, res) {
   try {
     const { id } = req.params;
@@ -63,12 +64,13 @@ async function updateGroupe(req, res) {
   }
 }
 
+// Delete a post by its ID
 async function deleteGroupe(req, res) {
   try {
     const { id } = req.params;
     const deletedGroupe = await prisma.groupe.delete({
       where: {
-        id: parseInt(id),
+        id,
       },
     });
     res.json(deletedGroupe);
@@ -78,4 +80,6 @@ async function deleteGroupe(req, res) {
   }
 }
 
+
 module.exports = { createGroupe, getGroupes, getGroupeById, updateGroupe, deleteGroupe };
+
