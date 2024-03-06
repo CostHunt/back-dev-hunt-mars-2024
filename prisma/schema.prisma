@@ -33,7 +33,7 @@ model Account {
   image_profile      String  @db.VarChar(30)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  id_quartier String
+  id_quartier String @db.Uuid
   quartier Quartier @relation(fields: [id_quartier],references: [id])
   posts Post[]
   projects Project[]
@@ -45,7 +45,7 @@ model Project {
   nom_project String @db.VarChar(30)
   categorie String
   code String @db.Text
-  id_account String
+  id_account String @db.Uuid
   accounts Account @relation(fields: [id_account],references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -64,8 +64,8 @@ model Message{
   contenu String @db.Text
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  id_account String
-  id_groupe String
+  id_account String @db.Uuid
+  id_groupe String @db.Uuid
   account Account @relation(fields: [id_account], references: [id])
   groupe  Groupe @relation(fields: [id_groupe], references: [id])
 }
@@ -78,8 +78,8 @@ model Post {
   account Account @relation(fields: [id_account], references: [id])
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
-  id_groupe String
-  id_account String
+  id_groupe String @db.Uuid
+  id_account String @db.Uuid
   attachedfiles Attachedfile[]
   comments Comment[]
 }
@@ -100,7 +100,7 @@ model Attachedfile {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   post  Post  @relation(fields: [id_post], references: [id])
-  id_post String
+  id_post String @db.Uuid
 
 }
 
@@ -111,6 +111,6 @@ model Comment {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   post Post @relation(fields: [id_post], references: [id])
-  id_post String
+  id_post String @db.Uuid
 }
 
