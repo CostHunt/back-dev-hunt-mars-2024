@@ -1,5 +1,7 @@
 // index.js
 const express = require('express');
+const { PrismaClient } = require('@prisma/client');
+const prisma = new PrismaClient();
 const mainRoute = require('./routes/main.route');
 const app = express();
 const cors = require('cors');
@@ -15,24 +17,35 @@ app.use('/api', mainRoute);
 io.on('connection', (socket) => {
   console.log("connected")
 
-  socket.on("message1", message=>{
-    try{
-        console.log("msg1");
-        io.emit("new_message1", message)
-      }
-      catch{
-      io.emit("error", {error: "message1 non envoyé"})
-    }
-  })
-  socket.on("message2", message=>{
-    try{
-        console.log("msg2");
-        io.emit("new_message2", message)
-      }
-      catch{
-      io.emit("error", {error: "message2 non envoyé"})
-    }
-  })
+  socket.on('joinGroup', async (data) => {
+    socket.join(data.id_groupe)
+    console.log( data.id_account,' joined group:', data.id_groupe);
+    // Fetch messages for the group from the database
+    const messages = await prisma.message.findMany({
+      where: {
+        id_groupe: data.id_groupe,
+      },
+    });
+
+    // Emit the messages to the user who joined the group
+    socket.emit('groupMessages', messages);
+  });
+
+  socket.on('leaveGroup', (data) => {
+    socket.leave(data.id_groupe);
+    console.log(data.id_account,' joined group:', data.id_groupe);
+  });
+  socket.on('sendMessage', async (data) => {
+    const savedMessage = await prisma.message.create({
+      data: {
+        contenu: data.contenu,
+        id_groupe: data.id_groupe, 
+        id_account: data.id_account, 
+      },
+    });
+
+    io.to(data.id_groupe).emit('new_message', savedMessage);
+  });
 });
 
 
