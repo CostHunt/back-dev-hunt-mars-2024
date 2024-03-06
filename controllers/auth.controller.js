@@ -64,7 +64,7 @@ async function login(req, res) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ accountId: account.username }, secretKey, { expiresIn: '1h' });
+    const token = jwt.sign({ accountId: account.id }, secretKey, { expiresIn: '1h' });
 
     res.json({ message: 'Login successful', token });
   } catch (error) {
@@ -80,7 +80,7 @@ async function refreshTokens(req, res) {
     if (err) {
       return res.status(401).json({ message: 'Invalid refresh token' });
     }
-    const newAccessToken = jwt.sign({ id: decoded.username }, secretKey, { expiresIn: '1h' });
+    const newAccessToken = jwt.sign({ accountId: decoded.username }, secretKey, { expiresIn: '1h' });
 
     res.json({ message: 'Token refreshed successfully', token: newAccessToken });
   });
@@ -96,17 +96,22 @@ async function verifyToken(req, res, next) {
     const decoded = jwt.verify(token, secretKey);
 
     const user = await prisma.Account.findUnique({
-      where: { username: decoded.username },
+      where: { id: decoded.accountId }, // Use the ID directly instead of username
     });
 
     if (!user) {
       return res.status(403).json({ message: 'Not authorized, Account not found' });
     }
 
-    req.user = decoded;
+    req.user = user; // Set the user directly in the request object
     next();
   } catch (error) {
+    console.error('Token verification error:', error.message);
+    if (error.name === 'TokenExpiredError') {
+      return res.status(403).json({ message: 'Not authorized, Token has expired' });
+    }
     return res.status(403).json({ message: 'Not authorized, Invalid token' });
   }
 }
+
 module.exports = { register, login, refreshTokens, verifyToken };
