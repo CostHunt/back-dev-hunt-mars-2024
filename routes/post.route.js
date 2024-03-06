@@ -11,5 +11,6 @@ router.get('/', postController.getPosts);
 router.get('/:id', postController.getPostById);
 router.put('/:id', postController.updatePost);
 router.delete('/:id', postController.deletePost);
+router.put('/:user_id/like/:post_id/', postController.likePost)
 
 module.exports = router;
