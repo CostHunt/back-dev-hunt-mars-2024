@@ -50,21 +50,21 @@ async function login(req, res) {
   const { username, password } = req.body;
 
   try {
-    const user = await prisma.Account.findUnique({
+    const account = await prisma.Account.findUnique({
       where: { username },
     });
 
-    if (!user) {
+    if (!account) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const passwordMatch = await bcrypt.compare(password, user.password);
+    const passwordMatch = await bcrypt.compare(password, account.password);
 
     if (!passwordMatch) {
       return res.status(401).json({ message: 'Invalid credentials' });
     }
 
-    const token = jwt.sign({ userId: user.username }, secretKey, { expiresIn: '1h' });
+    const token = jwt.sign({ accountId: account.username }, secretKey, { expiresIn: '1h' });
 
     res.json({ message: 'Login successful', token });
   } catch (error) {
@@ -80,7 +80,7 @@ async function refreshTokens(req, res) {
     if (err) {
       return res.status(401).json({ message: 'Invalid refresh token' });
     }
-    const newAccessToken = jwt.sign({ id: decoded.id }, secretKey, { expiresIn: '1h' });
+    const newAccessToken = jwt.sign({ id: decoded.username }, secretKey, { expiresIn: '1h' });
 
     res.json({ message: 'Token refreshed successfully', token: newAccessToken });
   });
@@ -96,7 +96,7 @@ async function verifyToken(req, res, next) {
     const decoded = jwt.verify(token, secretKey);
 
     const user = await prisma.Account.findUnique({
-      where: { username: decoded.id },
+      where: { username: decoded.username },
     });
 
     if (!user) {
