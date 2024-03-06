@@ -13,8 +13,28 @@ async function createPost(req, res) {
         id_groupe,
         id_account,
       },
+
+      include: {
+        account: {
+          select : {
+              username : true,
+              image_profile : true,
+          }
+        },
+
+        attachedfiles : {
+          select : {
+            url : true
+          }
+        },
+        
+      },
+
     });
-    res.json(post);
+    const commentsCount = 0;
+    const likesCount = 0;
+
+    res.json({...post, commentsCount, likesCount});
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
@@ -56,22 +76,17 @@ async function getPosts(req, res) {
         });
 
         // Count likedBy
-        const likedByCount = post.likedBy ? post.likedBy.length : 0;
+        const likesCount = post.likedBy ? post.likedBy.length : 0;
 
         return {
           ...post,
           commentsCount,
-          likedByCount,
+          likesCount,
         };
       })
     );
 
    
-    /*const commentsCount = await prisma.comment.count({
-      
-    });
-
-    const likesCount = post.likedBy ? post.likedBy.length : 0;*/
 
     if (!posts) {
       res.status(404).send('Post not found');
@@ -147,8 +162,38 @@ async function updatePost(req, res) {
         id_account,
         is_resolved,
       },
+
+      include: {
+        account: {
+          select : {
+              username : true,
+              image_profile : true,
+          }
+        },
+
+        attachedfiles : {
+          select : {
+            url : true
+          }
+        },
+        
+      },
+
+
     });
-    res.json(updatedPost);
+    const commentsCount = await prisma.comment.count({
+      where: {
+        id_post: id,
+      },
+    });
+
+    const likesCount = updatedPost.likedBy ?updatedPost.likedBy.length : 0;
+
+    if (!updatedPost) {
+      res.status(404).send('Post not found');
+      return;
+    }
+    res.json({...updatedPost, commentsCount, likesCount});
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
@@ -213,12 +258,48 @@ async function getGroupPost(req, res) {
       where: {
         id_groupe,
       },
+      include: {
+        account: {
+          select : {
+              username : true,
+              image_profile : true,
+          }
+        },
+
+        attachedfiles : {
+          select : {
+            url : true
+          }
+        },
+        
+      },
     });
+
+    const postsWithCounts = await Promise.all(
+      post.map(async (post) => {
+        // Count comments
+        const commentsCount = await prisma.comment.count({
+          where: {
+            id_post: post.id,
+          },
+        });
+
+        // Count likedBy
+        const likesCount = post.likedBy ? post.likedBy.length : 0;
+
+        return {
+          ...post,
+          commentsCount,
+          likesCount,
+        };
+      })
+    );
+
     if (!post) {
       res.status(404).send('No Group Posts');
       return;
     }
-    res.json(post);
+    res.json(postsWithCounts);
   } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
