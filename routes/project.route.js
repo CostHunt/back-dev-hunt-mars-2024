@@ -8,5 +8,6 @@ const authController = require('../controllers/auth.controller');
 // router.use(authController.verifyToken);
 router.post('/', projectController.createProject);
 router.get('/', projectController.getAllProjects);
+router.get('/:id_account',projectController.getProjectsByUser)
 
 module.exports = router;

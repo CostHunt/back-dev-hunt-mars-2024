@@ -6,13 +6,13 @@ const prisma = new PrismaClient();
 // Create a new project
 const createProject = async (req, res) => {
   try {
-    const { nom_project, categorie, code, id_user } = req.body;
+    const { nom_project, categorie, code, id_account } = req.body;
     const project = await prisma.project.create({
       data: {
         nom_project,
         categorie,
         code,
-        id_user,
+        id_account,
       },
     });
     res.json(project);
@@ -33,5 +33,26 @@ const getAllProjects = async (req, res) => {
   }
 };
 
+async function getProjectsByUser(req, res) {
+  const { id_account } = req.params;
 
-module.exports = { createProject, getAllProjects };
+  try {
+    const projects = await prisma.project.findMany({
+      where: {
+        id_account: id_account,
+      },
+      include:{
+        accounts:true
+      }
+    });
+
+    res.json(projects);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+}
+
+
+
+module.exports = { createProject, getAllProjects, getProjectsByUser };
