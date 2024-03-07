@@ -14,5 +14,6 @@ router.delete('/:id', postController.deletePost);
 router.put('/:user_id/like/:post_id/', postController.likePost)
 router.get('/groupe/:id_groupe/', postController.getGroupPost);
 router.put('/isresolved/:id/', postController.SetResolved);
+router.get('/limit/:limit/', postController.getLimitedPosts);
 
 module.exports = router;

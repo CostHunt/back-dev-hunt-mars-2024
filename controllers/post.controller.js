@@ -98,6 +98,72 @@ async function getPosts(req, res) {
   }
 }
 
+async function getLimitedPosts(req, res) {
+  try {
+    const {limit} = req.params;
+    const parsedLimit = parseInt(limit, 10)
+
+    if (isNaN(parsedLimit)) {
+      // Gérez le cas où limit n'est pas un nombre valide
+      res.status(400).send('Invalid limit parameter');
+      return;
+    }
+    
+    const posts = await prisma.post.findMany({
+      take: parsedLimit,
+      include: {
+        account: {
+          select : {
+              username : true,
+              image_profile : true,
+          }
+        },
+
+        attachedfiles : {
+          select : {
+            url : true
+          }
+        },
+        
+      },
+
+      orderBy : {
+        date_publication: 'desc', 
+      }
+    });
+
+    const postsWithCounts = await Promise.all(
+      posts.map(async (post) => {
+        // Count comments
+        const commentsCount = await prisma.comment.count({
+          where: {
+            id_post: post.id,
+          },
+        });
+
+        // Count likedBy
+        const likesCount = post.likedBy ? post.likedBy.length : 0;
+
+        return {
+          ...post,
+          commentsCount,
+          likesCount,
+        };
+      })
+    );
+
+    if (!posts) {
+      res.status(404).send('Post not found');
+      return;
+    }
+    res.json(postsWithCounts);
+  } 
+  catch (error) {
+    console.error(error);
+    res.status(500).send('Internal Server Error');
+  }
+}
+
 // Get a post by its ID
 async function getPostById(req, res) {
   try {
@@ -358,5 +424,6 @@ module.exports = {
     deletePost,
     likePost,
     getGroupPost,
-    SetResolved
+    SetResolved,
+    getLimitedPosts
   };
