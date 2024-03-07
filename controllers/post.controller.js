@@ -86,8 +86,6 @@ async function getPosts(req, res) {
       })
     );
 
-   
-
     if (!posts) {
       res.status(404).send('Post not found');
       return;
