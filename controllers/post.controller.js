@@ -314,6 +314,39 @@ async function getGroupPost(req, res) {
   }
 }
 
+async function SetResolved(req, res) {
+  try {
+    const { id } = req.params;
+  
+    // Retrieve the post by ID
+    const post = await prisma.post.findUnique({
+      where: {
+        id,
+      },
+    });
+  
+    // Check if the post exists
+    if (!post) {
+      throw new Error('Post not found');
+    }
+  
+    // Toggle the value of is_resolved
+    const updatedPost = await prisma.post.update({
+      where: {
+        id,
+      },
+      data: {
+        is_resolved: !post.is_resolved,
+      },
+    });
+  
+    // Return the updated post
+    res.json(updatedPost);
+  } catch (error) {
+    console.error(error);
+    throw new Error('Error updating post');
+  }
+}
 
 
 
@@ -324,5 +357,6 @@ module.exports = {
     updatePost,
     deletePost,
     likePost,
-    getGroupPost
+    getGroupPost,
+    SetResolved
   };
