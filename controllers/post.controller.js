@@ -1,6 +1,8 @@
 const { PrismaClient } = require('@prisma/client');
 const e = require('express');
 
+const secretKey = '$cost-hunt03-24';
+const jwt = require('jsonwebtoken');
 const prisma = new PrismaClient();
 
 // Create a new post
@@ -44,6 +46,7 @@ async function createPost(req, res) {
 
 // Get all posts
 async function getPosts(req, res) {
+  
   try {
     const posts = await prisma.post.findMany({
       include: {
@@ -101,70 +104,73 @@ async function getPosts(req, res) {
 }
 
 async function getLimitedPosts(req, res) {
+  const token = req.header('X-access-token');
+  const decoded = jwt.verify(token, secretKey);
+
   try {
-    const {limit} = req.params;
-    const parsedLimit = parseInt(limit, 10)
+    const { limit } = req.params;
+    const parsedLimit = parseInt(limit, 10);
 
     if (isNaN(parsedLimit)) {
-      // Gérez le cas où limit n'est pas un nombre valide
       res.status(400).send('Invalid limit parameter');
       return;
     }
-    
+
     const posts = await prisma.post.findMany({
       take: parsedLimit,
       include: {
         account: {
-          select : {
-              username : true,
-              image_profile : true,
-          }
+          select: {
+            username: true,
+            image_profile: true,
+          },
         },
-
-        attachedfiles : {
-          select : {
-            url : true
-          }
+        attachedfiles: {
+          select: {
+            url: true,
+          },
         },
-        likedBy:true  
+        likedBy: true,
       },
-
-      orderBy : {
-        date_publication: 'desc', 
-      }
+      orderBy: {
+        date_publication: 'desc',
+      },
     });
+
+    if (!posts) {
+      res.status(404).send('Post not found');
+      return;
+    }
 
     const postsWithCounts = await Promise.all(
       posts.map(async (post) => {
-        // Count comments
         const commentsCount = await prisma.comment.count({
           where: {
             id_post: post.id,
           },
         });
 
-        // Count likedBy
         const likesCount = post.likedBy ? post.likedBy.length : 0;
+
+        // Vérifie si decoded.accountId est présent dans likedBy
+        const isLiked = post.likedBy.some((likedAccount) => likedAccount.id === decoded.accountId);
 
         return {
           ...post,
           commentsCount,
           likesCount,
+          isLiked,
         };
       })
     );
 
-    if (!posts) {
-      res.status(404).send('Post not found');
-      return;
-    }
     res.json(postsWithCounts);
-  } 
-  catch (error) {
+  } catch (error) {
     console.error(error);
     res.status(500).send('Internal Server Error');
   }
 }
+
 
 // Get a post by its ID
 async function getPostById(req, res) {
