@@ -58,7 +58,7 @@ async function getPosts(req, res) {
             url : true
           }
         },
-        
+        likedBy:true
       },
 
       orderBy : {
