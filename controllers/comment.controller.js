@@ -5,7 +5,15 @@ const prisma = new PrismaClient();
 
 async function  getAllComments (req, res){
     try {
-      const comments = await prisma.comment.findMany();
+      const comments = await prisma.comment.findMany({
+        include : {
+          account : {
+            select : {
+              username : true,
+          }
+          }
+        }
+      });
       res.json(comments);
     } catch (error) {
       console.error(error);
@@ -19,7 +27,11 @@ async function  getAllComments (req, res){
       const comments = await prisma.comment.findMany({
         where: { id_post: id_post },
         include: {
-          account: true, // Inclure les détails de l'utilisateur associé au commentaire
+          account: {
+            select : {
+              username : true,
+          }
+          } // Inclure les détails de l'utilisateur associé au commentaire
         },
       });
   
@@ -46,7 +58,14 @@ async function  createComment(req, res) {
           id_post,
           id_account,
         },
-      });
+        include: {
+            account: {
+              select : {
+                username : true,
+            }
+            } // Inclure les détails de l'utilisateur associé au commentaire
+          },
+        });
       res.status(201).json(newComment);
     } catch (error) {
       console.error(error);
