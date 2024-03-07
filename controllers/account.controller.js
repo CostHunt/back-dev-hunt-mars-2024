@@ -85,10 +85,7 @@ async function getOneAccount(req, res) {
         const Ufile = bucket.file(imageName);
         await Ufile.save(imageBuffer);
   
-        // Obtenez l'URL du fichier téléchargé
         const fileURL = await Ufile.getSignedUrl({ action: 'read', expires: '03-09-2025' });
-  
-        // Mettez à jour la base de données avec l'URL du fichier
         await prisma.account.update({
           where: { id: id_account },
           data: { image_profile: fileURL[0] }

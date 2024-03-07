@@ -6,12 +6,13 @@ const prisma = new PrismaClient();
 // Create a new post
 async function createPost(req, res) {
   try {
-    const { description, id_groupe, id_account } = req.body;
+    const { description, id_groupe, id_account,code } = req.body;
     const post = await prisma.post.create({
       data: {
         description,
         id_groupe,
         id_account,
+        code,
       },
 
       include: {
@@ -47,24 +48,25 @@ async function getPosts(req, res) {
     const posts = await prisma.post.findMany({
       include: {
         account: {
-          select : {
-              username : true,
-              image_profile : true,
+          select: {
+            username: true,
+            image_profile: true
           }
         },
-
-        attachedfiles : {
-          select : {
-            url : true
+        attachedfiles: {
+          select: {
+            url: true
           }
         },
-        likedBy:true
+        likedBy: true,
+        comments: true
       },
-
-      orderBy : {
-        date_publication: 'desc', 
-      }
+      orderBy: {
+        date_publication: "desc"
+      },
     });
+    
+    
 
     const postsWithCounts = await Promise.all(
       posts.map(async (post) => {
@@ -124,7 +126,7 @@ async function getLimitedPosts(req, res) {
             url : true
           }
         },
-        
+        likedBy:true  
       },
 
       orderBy : {
