@@ -1,7 +1,9 @@
 const { PrismaClient } = require('@prisma/client');
 const e = require('express');
+const admin = require('../firebase.init');
 
 const prisma = new PrismaClient();
+
 
 async function getAllAccounts(req, res) {
     try {
@@ -69,4 +71,40 @@ async function getOneAccount(req, res) {
       }
   }
 
-  module.exports = {getOneAccount, getAllAccounts};
+  async function uploadProfile(req, res) {
+    const bucket = admin.storage().bucket();
+    const {id_account } = req.params
+    try {
+      if (!req.files) {
+        res.status(400).send('No files uploaded');
+        return;
+      }
+      const promises = req.files.map(async (file) => {
+        const imageBuffer = file.buffer;
+        const imageName = file.originalname;
+        const Ufile = bucket.file(imageName);
+        await Ufile.save(imageBuffer);
+  
+        // Obtenez l'URL du fichier téléchargé
+        const fileURL = await Ufile.getSignedUrl({ action: 'read', expires: '03-09-2025' });
+  
+        // Mettez à jour la base de données avec l'URL du fichier
+        await prisma.account.update({
+          where: { id: id_account },
+          data: { image_profile: fileURL[0] }
+        });
+      });
+  
+      await Promise.all(promises);
+  
+      res.send({
+        status: "200",
+        message: "Files uploaded and database updated successfully"
+      });
+    } catch (error) {
+      console.error('Error uploading image:', error);
+      res.status(500).send('Error uploading image.');
+    }
+  }
+
+  module.exports = {getOneAccount, getAllAccounts, uploadProfile};

@@ -6,6 +6,6 @@ const router = express.Router();
 
 const authController = require('../controllers/auth.controller');
 // router.use(authController.verifyToken);
-router.post('/run/code/',compileController.runCode );
+router.post('/code/',compileController.runCode );
 
 module.exports = router;

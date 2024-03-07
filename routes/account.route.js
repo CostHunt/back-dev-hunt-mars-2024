@@ -9,6 +9,7 @@ const router = express.Router();
 
 router.get('/', accountController.getAllAccounts);
 router.get('/:id', accountController.getOneAccount);
+router.post('/:id_account/',accountController.uploadProfile)
 
 
 module.exports = router;

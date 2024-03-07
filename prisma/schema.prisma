@@ -30,7 +30,7 @@ model Account {
   prenoms   String    @db.VarChar(30)
   matricule String    @db.VarChar(30) @unique
   password   String?      @db.VarChar(250) @map("_password")
-  image_profile      String  @db.VarChar(30)
+  image_profile      String  @db.VarChar(250)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   id_quartier String @db.Uuid
