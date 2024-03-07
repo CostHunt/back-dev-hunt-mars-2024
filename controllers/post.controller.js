@@ -194,7 +194,6 @@ async function likePost(req, res) {
         include: { likedBy: true },
       });
 
-      // Retournez le nombre de likes après la suppression du like
       res.json({ message: 'Post unliked successfully', numberOfLikes: unlikedPost.likedBy.length });
       return;
     }
