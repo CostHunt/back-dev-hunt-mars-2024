@@ -9,5 +9,6 @@ const authController = require('../controllers/auth.controller');
 router.post('/', projectController.createProject);
 router.get('/', projectController.getAllProjects);
 router.get('/:id_account',projectController.getProjectsByUser)
+router.put('/:id',projectController.updateProject)
 
 module.exports = router;
